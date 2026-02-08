@@ -1,0 +1,20 @@
+## Build results
+bin/
+obj/
+
+## User-specific files
+.vs/
+
+## SQLite database
+*.db
+*.db-shm
+*.db-wal
+
+## Environment files
+appsettings.Development.json
+
+
+MvcMovie.db
+
+bin/
+obj/

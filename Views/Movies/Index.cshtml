@@ -1,0 +1,67 @@
+@model MvcMovie.Models.MovieGenreViewModel
+
+@{
+    ViewData["Title"] = "Movie List";
+}
+
+<h1>Movie List</h1>
+
+<!-- Filter Form -->
+<form asp-action="Index" method="get" class="mb-3 row g-3 align-items-center">
+    <div class="col-auto">
+        <input type="text" name="searchString" value="@Model.SearchString" class="form-control" placeholder="Search by title" />
+    </div>
+    <div class="col-auto">
+        <select asp-for="MovieGenre" asp-items="Model.Genres" class="form-select">
+            <option value="">All Genres</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a asp-action="Index" class="btn btn-secondary">Reset</a>
+    </div>
+</form>
+
+<!-- Movie Table -->
+<table class="table table-striped table-hover table-bordered align-middle">
+    <thead class="table-dark">
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.Movies![0].Title)</th>
+            <th>@Html.DisplayNameFor(model => model.Movies![0].ReleaseDate)</th>
+            <th>@Html.DisplayNameFor(model => model.Movies![0].Genre)</th>
+            <th>@Html.DisplayNameFor(model => model.Movies![0].Price)</th>
+            <th>@Html.DisplayNameFor(model => model.Movies![0].Rating)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    @if (Model.Movies != null && Model.Movies.Any())
+    {
+        foreach (var item in Model.Movies)
+        {
+            <tr>
+                <td>@item.Title</td>
+                <td>@item.ReleaseDate.ToString("yyyy-MM-dd")</td>
+                <td>@item.Genre</td>
+                <td>@item.Price.ToString("C")</td>
+                <td>@Html.DisplayFor(modelItem => item.Rating)</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    }
+    else
+    {
+        <tr>
+            <td colspan="5" class="text-center text-muted">No movies found.</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<p>
+    <a asp-action="Create" class="btn btn-success">Create New Movie</a>
+</p>
