@@ -15,41 +15,51 @@ namespace MvcMovie.Controllers
             _context = context;
         }
 
-        // GET: Movies (Index with search and genre filter)
-        public async Task<IActionResult> Index(string movieGenre, string searchString)
+        // GET: Movies (Index with search, genre filter, and release year filter)
+        public async Task<IActionResult> Index(string movieGenre, string searchString, int? releaseYear)
         {
             if (_context.Movie == null)
             {
                 return Problem("Entity set 'MvcMovieContext.Movie' is null.");
             }
 
+            // Get distinct list of genres
             IQueryable<string> genreQuery = from m in _context.Movie
                                             orderby m.Genre
                                             select m.Genre;
 
+            // Get all movies
             var movies = from m in _context.Movie
                          select m;
 
+            // Filter by title search (case-insensitive)
             if (!string.IsNullOrEmpty(searchString))
             {
                 string searchUpper = searchString.ToUpper();
-                movies = movies.Where(s =>
-                    s.Title != null && s.Title.ToUpper().Contains(searchUpper));
+                movies = movies.Where(s => s.Title != null && s.Title.ToUpper().Contains(searchUpper));
             }
 
+            // Filter by genre (case-insensitive)
             if (!string.IsNullOrEmpty(movieGenre))
             {
                 string genreUpper = movieGenre.ToUpper();
-                movies = movies.Where(x =>
-                    x.Genre != null && x.Genre.ToUpper() == genreUpper);
+                movies = movies.Where(x => x.Genre != null && x.Genre.ToUpper() == genreUpper);
             }
 
+            // Filter by release year
+            if (releaseYear.HasValue)
+            {
+                movies = movies.Where(x => x.ReleaseDate.Year >= releaseYear.Value);
+            }
+
+            // Create the view model
             var movieGenreVM = new MovieGenreViewModel
             {
                 Genres = new SelectList(await genreQuery.Distinct().ToListAsync()),
                 Movies = await movies.ToListAsync(),
                 MovieGenre = movieGenre,
-                SearchString = searchString
+                SearchString = searchString,
+                ReleaseYear = releaseYear
             };
 
             return View(movieGenreVM);
@@ -60,9 +70,7 @@ namespace MvcMovie.Controllers
         {
             if (id == null) return NotFound();
 
-            var movie = await _context.Movie
-                .FirstOrDefaultAsync(m => m.Id == id);
-
+            var movie = await _context.Movie.FirstOrDefaultAsync(m => m.Id == id);
             if (movie == null) return NotFound();
 
             return View(movie);
@@ -77,8 +85,7 @@ namespace MvcMovie.Controllers
         // POST: Movies/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(
-            [Bind("Id,Title,ReleaseDate,Genre,Price,Rating")] Movie movie)
+        public async Task<IActionResult> Create([Bind("Id,Title,ReleaseDate,Genre,Price,Rating")] Movie movie)
         {
             if (ModelState.IsValid)
             {
@@ -103,9 +110,7 @@ namespace MvcMovie.Controllers
         // POST: Movies/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(
-            int id,
-            [Bind("Id,Title,ReleaseDate,Genre,Price,Rating")] Movie movie)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,ReleaseDate,Genre,Price,Rating")] Movie movie)
         {
             if (id != movie.Id) return NotFound();
 
@@ -133,9 +138,7 @@ namespace MvcMovie.Controllers
         {
             if (id == null) return NotFound();
 
-            var movie = await _context.Movie
-                .FirstOrDefaultAsync(m => m.Id == id);
-
+            var movie = await _context.Movie.FirstOrDefaultAsync(m => m.Id == id);
             if (movie == null) return NotFound();
 
             return View(movie);

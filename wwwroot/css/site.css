@@ -20,3 +20,7 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+input.form-control {
+    padding: 10px; /* adjust as needed */
+}
