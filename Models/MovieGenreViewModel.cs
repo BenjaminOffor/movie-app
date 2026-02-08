@@ -9,12 +9,15 @@ namespace MvcMovie.Models
         public List<Movie> Movies { get; set; } = new List<Movie>();
 
         // List of genres for dropdown
-        public SelectList Genres { get; set; }
+        public SelectList Genres { get; set; } = new SelectList(new List<string>());
 
         // Selected genre from dropdown
         public string? MovieGenre { get; set; }
 
         // Search string from the search box
         public string? SearchString { get; set; }
+
+        // Filter by release year
+        public int? ReleaseYear { get; set; }
     }
 }
